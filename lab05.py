@@ -1,7 +1,7 @@
 ########################################################################
 ##
 ## CS 101 Lab
-## Program # 4
+## Program # 5
 ## Mick Leinbach
 ## mtl9pn@umsystem.edu
 ##
@@ -17,146 +17,120 @@
 ##      Any special comments
 ##
 ########################################################################
+# import statements
+# functions
 
-#import modules needed
-
-import random
-
-def play_again() -> bool:
-    ''' Asks the user if they want to play again, returns False if N or NO, and True if Y or YES.  Keeps asking until they respond yes '''
-    # Asks the user if they want to play again
-    playing = input("Do you want to play again ==> ")
-
-    # Repeatedly ask for an input until an acceptable one is entered. Always checks the lowercase version so that the program doesn't have to be case sensitive.
-    while playing.lower() != "yes" and playing.lower() != "y" and playing.lower() != "n" and playing.lower() != "no":
-        print("\nYou must enter Y/YES/N/NO to continue. Please try again")
-        playing = input("Do you want to play again ==> ")
-
-    # Returns true if the player enters "Y" or "YES," returns false if they entered "N" or "NO"
-    if playing.lower() == "yes" or playing.lower() == "y":
-        return True
+# Returns one of three schools depending on the sixth character of the code. If the fifth character isn't 1, 2, or 3, return "Invalid School"
+def get_school(user_string):
+    if user_string[5] == "1":
+        return "School of Computing and Engineering SCE"
+    elif user_string[5] == "2":
+        return "School of Law"
+    elif user_string[5] == "3":
+        return "College of Arts and Sciences"
     else:
-        return False
-     
-def get_wager(bank : int) -> int:
-    ''' Asks the user for a wager chip amount.  Continues to ask if they result is <= 0 or greater than the amount they have '''
-    # Get the player's wager
-    wager = int(input("How many chips do you want to wager? ==> "))
+        return "Invalid School"
 
-    # Loops if the wager is outside the acceptable range
-    while wager <= 0 or wager > bank:
-        if wager <= 0: # Response if the wager isn't greater than zero
-            print("The wager amount must be greater than 0. Please enter again.")
-            wager = int(input("How many chips do you want to wager? ==> "))
-        else: # Reponse if the wager is above the bank amount
-            print(f"The wager cannot be greater than how much you have. {bank}")
-            wager = int(input("How many chips do you want to wager? ==> "))
-
-    # Returns the wager once the user has entered something acceptable
-    return wager            
-
-def get_slot_results() -> tuple:
-    ''' Returns the result of the slot pull '''
-    # The three variables are all assigned a random number from 1 (inclusive) to eleven (exclusive)
-    reel1 = random.choice(range(1,11))
-    reel2 = random.choice(range(1,11))
-    reel3 = random.choice(range(1,11))
-    # Returns the three variables as a tuple
-    return reel1, reel2, reel3
-
-def get_matches(reela, reelb, reelc) -> int:
-    ''' Returns 3 for all 3 match, 2 for 2 alike, and 0 for none alike. '''
-    # Checks if all three values are equal. (This method works because of the transient property: if a = b, and b = c, then a = c).
-    if reela == reelb and reelb == reelc:
-        # Return 3 if all numbers match
-        return 3
-    # If there isn't a triple match, is there at least one pair of matching numbers?
-    elif reela == reelb or reelb == reelc or reela == reelc:
-        # Return 2 if there is one pair of matching numbers
-        return 2
+# Returns one of four grades depending on the seventh character of the code. If the seventh character isn't 1, 2, 3, or 4, return "Invalid Grade"
+def get_grade(user_string):
+    if user_string[6] == "1":
+        return "Freshman"
+    elif user_string[6] == "2":
+        return "Sophomore"
+    elif user_string[6] == "3":
+        return "Junior"
+    elif user_string[6] == "4":
+        return "Senior"
     else:
-        # There are no matching numbers, so return 0
-        return 0
+        return "Invalid Grade"
 
-def get_bank() -> int:
-    ''' Returns how many chips the user wants to play with.  Loops until a value greater than 0 and less than 101 '''
-    # Get user input
-    bank = int(input("How many chips do you want to start with? ==> "))
+# Convert a character into its character value and then subtract it by 65 so that A = 0, B = 1, C = 2, etc. Return that number of 0-25.
+def character_value(char):
+    output = ord(char) - 65
+    return output
 
-    # Loop if the user's initial bank is outside the acceptable range.
-    while bank <= 0 or bank > 100:
-        # Alert the user and ask again if the input isn't greater than zero.
-        if bank <= 0:
-            print("Too low a value, you can only choose 1 - 100 chips")
-            bank = int(input("How many chips do you want to start with? ==> "))
-        # Alert the user and ask again if the input isn't less than 100.
-        if bank > 100:
-            print("Too high a value, you can only choose 1 - 100 chips")
-            bank = int(input("How many chips do you want to start with? ==> "))
+# Perform the complicated formula, multiplying the numbers in the first five characters with their position in the string plus one, and return the final digit of the result.
+def get_check_digit(user_string):
+    total = 0
+    i = 0
+    
+    while i <= 4:
+        total += (i + 1) * character_value(user_string[i])
+        i += 1
+        
+        
+    while i <= 8:
+        total += (i + 1) * int(user_string[i])
+        i += 1
+        
+    output = total % 10
+    return output
 
-    # Return the user's inputted bank once they have entered something acceptable.
-    return bank
+# Makes sure that the first five characters of the string are letters. If they aren't, return false and specify the position of the offending character, and what that character is.
+def verify_alpha_start(user_string):
+    i = 0
+    while i <= 4:
+        if user_string[i].isalpha() == False:
+            return False, i, user_string[i]
+        i += 1
+    return True, 0, 0
 
-def get_payout(wager, matches):
-    ''' Returns how much the payout is.. 10 times the wager if 3 matched, 3 times the wager if 2 match, and negative wager if 0 match '''
-    # If all three numbers matched, the payout is ten times the wager minus the wager.
-    if matches == 3:
-        payout = (10 * wager) - wager
-    # If only two numbers matched, the payout is three times the wager minus the wager.
-    elif matches == 2:
-        payout = (3 * wager) - wager
-    # If no numbers matched, the payout is a loss of money equal to the wager.
+# Makes sure that the last three characters of the string are numbers. If they aren't, return False and specify the position of the offending character, and what that character is.
+def verify_number_end(user_string):
+    i = 7
+    while i <= 9:
+        if user_string[i].isdigit() == False:
+            return False, i, user_string[i]
+        i += 1
+    return True, 0, 0
+
+# Returns false if the code isn't ten characters long.
+def verify_check_digit(user_string):
+    if len(user_string) != 10:
+        return False, "The length of the number given must be 10"
+
+    # Unpack the values of the verify_alpha_start and verify_number_end functions.
+    alphaPresent, alphaOffenderIndex, alphaOffenderChr = verify_alpha_start(user_string)
+    numberPresent, numberOffenderIndex, numberOffenderChr = verify_number_end(user_string)
+
+    # Get the school and grade in the form of a string
+    school = get_school(user_string)
+    grade = get_grade(user_string)
+
+    
+    if alphaPresent == False: # Error if the code isn't 10 digits long
+        return False, f"The first 5 characters must be A-Z, the invalid character is at {alphaOffenderIndex} is {alphaOffenderChr}"
+    elif numberPresent == False: # Error if the last three characters aren't numbers
+        return False, f"The last 3 characters must be 0-9, the invalid character is at {numberOffenderIndex} is {numberOffenderChr}"
+    elif school == "Invalid School": # Error if the sixth digit doesn't correspond to one of the three schools.
+        return False, "The sixth character must be 1 2 or 3"
+    elif grade == "Invalid Grade": # Error if the seventh digit doesn't correspond to one of the four grades.
+        return False, "The seventh character must be 1 2 3 or 4"
+    elif user_string[9].isdigit() == False or get_check_digit(user_string) != int(user_string[9]): # Error if the check digit doesn't match the last digit of the code.
+        return False, f"Check Digit {user_string[9]} does not match calculated value {get_check_digit(user_string)}."
     else:
-        payout = wager * -1
-
-    # Return the user's payout
-    return payout   
-
+        return True, "" # Return True if the code passes every test.
 
 if __name__ == "__main__":
+    # main program
+    validity, reason = "Undecided", "Undecided" # Initialize validity and reason
+    code = "Undecided" # Initialize code
 
-    # Start the program by setting the playing variable to True
-    playing = True
+    # Print a fancy header
+    print("{:^60}".format("Linda Hall"))
+    print("{:^60}".format("Library Card Check"))
+    print("=" * 60)
 
-    # Repeat until the player is no longer playing
-    while playing:
-
-        # Initialize variables. Store the bank's initial value in bankStart for later.
-        bank = get_bank()
-        bankStart = bank
-        spins = 0
-        record = bank
-
-        # Repeat until the user runs out of money
-        while bank > 0:
-
-            # Get an acceptable wager
-            wager = get_wager(bank)
-
-            # Gets three results from the slot machine, increments the number of spins.
-            reel1, reel2, reel3 = get_slot_results()
-            spins += 1
-
-            # See how many matches there are, get the payout, and add the payout to the amount in the bank.
-            matches = get_matches(reel1, reel2, reel3)
-            payout = get_payout(wager, matches)
-            bank = bank + payout
-
-            # If the current amount in the bank breaks the record, update the record.
-            if bank > record:
-                record = bank
-
-            # Tell the user what their spin was, how many reels they matched, how much money they won or lost, and how much money they have left
-            print("Your spin", reel1, reel2, reel3)
-            print("You matched", matches, "reels")
-            print("You won/lost", payout)
-            print("Current bank", bank)
-            print()
-
-        # Once the user runs out of money...
-        # Remind the user of how much money they started with and tell them how many spins it took to lose it all.
-        print("You lost all", bankStart, "in", spins, "spins")
-        # Tell the user the most chips they had throughout the game
-        print("The most chips you had was", record)
-        # Ask the user if they would like to play again
-        playing = play_again()
+    # Repeat the loop until the user simply hits Enter
+    while code != "":
+        code = input("\nEnter Library Card.  Hit Enter to Exit ==> ") # Get a code from the user.
+        if code == "": # Breaks the loop if the user just hit Enter
+            break
+        validity, reason = verify_check_digit(code) # Unpacks results of verify_check_digit into validity and reason
+        if validity == False: # If the code is invalid, inform the user of that and specify why it's invalid.
+            print("Library card is invalid.")
+            print(reason)
+        if validity == True: # If the code is valid, inform the user of that and inform them of the student's school and grade.
+            print("Labrary card is valid.")
+            print(f"The cards belong to a student in {get_school(code)}")
+            print(f"The card belongs to a {get_grade(code)}")
